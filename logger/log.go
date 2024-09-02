@@ -24,6 +24,7 @@ const (
 	Fatal  = zapcore.FatalLevel
 )
 
+// NewLogger 新建日志
 func NewLogger(logs *Logger) (logger *zap.SugaredLogger) {
 	// 日志输出设置
 	logs = setLogger(logs)

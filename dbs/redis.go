@@ -22,8 +22,8 @@ type RdbConnection struct {
 	ConnMaxLifetime time.Duration `json:"connMaxLifetime" yaml:"connMaxLifetime"` // 连接最大生命周期
 }
 
-// ConnectRedis 连接 redis 数据库
-func ConnectRedis(conn RdbConnection) (*redis.Client, error) {
+// NewRedis 新建 redis 连接
+func NewRedis(conn RdbConnection) (*redis.Client, error) {
 	// 创建 Redis 客户端
 	rdb := redis.NewClient(&redis.Options{
 		Addr:            conn.Host + ":" + strconv.Itoa(conn.Port),

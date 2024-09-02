@@ -60,8 +60,8 @@ func dbConfig(conn DBConnection) (dbConfig gorm.Dialector) {
 	return dbConfig
 }
 
-// ConnectDatabase 连接数据库
-func ConnectDatabase(conn DBConnection) (*gorm.DB, error) {
+// NewDatabase 新建数据库连接
+func NewDatabase(conn DBConnection) (*gorm.DB, error) {
 	// 创建数据库连接
 	db, err := gorm.Open(dbConfig(conn))
 	if err != nil {
