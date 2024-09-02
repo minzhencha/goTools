@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type RdbConnection struct {
+type RDBConfig struct {
 	Host            string        `json:"host" yaml:"host"`                       // Redis 服务器地址
 	Port            int           `json:"port" yaml:"port"`                       // Redis 服务器端口
 	Pass            string        `json:"pass" yaml:"pass"`                       // Redis 服务器密码
@@ -23,29 +23,29 @@ type RdbConnection struct {
 }
 
 // NewRedis 新建 redis 连接
-func NewRedis(conn RdbConnection) (*redis.Client, error) {
+func NewRedis(rdb RDBConfig) (*redis.Client, error) {
 	// 创建 Redis 客户端
-	rdb := redis.NewClient(&redis.Options{
-		Addr:            conn.Host + ":" + strconv.Itoa(conn.Port),
-		Password:        conn.Pass,
-		DB:              conn.DB,
-		PoolSize:        conn.PoolSize,
-		MaxIdleConns:    conn.MaxIdleConns,
-		MinIdleConns:    conn.MinIdleConns,
-		MaxActiveConns:  conn.MaxActiveConns,
-		ConnMaxIdleTime: conn.ConnMaxIdleTime,
-		ConnMaxLifetime: conn.ConnMaxLifetime,
+	rdbClient := redis.NewClient(&redis.Options{
+		Addr:            rdb.Host + ":" + strconv.Itoa(rdb.Port),
+		Password:        rdb.Pass,
+		DB:              rdb.DB,
+		PoolSize:        rdb.PoolSize,
+		MaxIdleConns:    rdb.MaxIdleConns,
+		MinIdleConns:    rdb.MinIdleConns,
+		MaxActiveConns:  rdb.MaxActiveConns,
+		ConnMaxIdleTime: rdb.ConnMaxIdleTime,
+		ConnMaxLifetime: rdb.ConnMaxLifetime,
 	})
 
 	// Ping 测试连接
-	pong, err := rdb.Ping(context.Background()).Result()
+	pong, err := rdbClient.Ping(context.Background()).Result()
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Connected to Redis:", pong)
 
 	// 关闭连接
-	_ = rdb.Close()
+	_ = rdbClient.Close()
 
-	return rdb, nil
+	return rdbClient, nil
 }

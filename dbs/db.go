@@ -27,8 +27,8 @@ func (dt DriverType) String() string {
 	return DriverTypeString[dt]
 }
 
-// DBConnection 数据库连接配置
-type DBConnection struct {
+// DBConfig 数据库连接配置
+type DBConfig struct {
 	Driver          DriverType    `json:"driver" yaml:"driver"`                   // 数据库驱动
 	Host            string        `json:"host" yaml:"host"`                       // 数据库地址
 	Port            int           `json:"port" yaml:"port"`                       // 数据库端口
@@ -42,18 +42,18 @@ type DBConnection struct {
 }
 
 // dbConfig 数据库连接配置
-func dbConfig(conn DBConnection) (dbConfig gorm.Dialector) {
+func dbConfig(dbc DBConfig) (dbConfig gorm.Dialector) {
 	// 数据库连接配置
-	switch conn.Driver {
+	switch dbc.Driver {
 	case Mysql:
 		dbConfig = mysql.New(mysql.Config{
-			DriverName: conn.Driver.String(),
-			DSN:        fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", conn.User, conn.Pass, conn.Host, conn.Port, conn.Name),
+			DriverName: dbc.Driver.String(),
+			DSN:        fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name),
 		})
 	case Postgres:
 		dbConfig = postgres.New(postgres.Config{
-			DriverName: conn.Driver.String(),
-			DSN:        fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", conn.User, conn.Pass, conn.Host, conn.Port, conn.Name),
+			DriverName: dbc.Driver.String(),
+			DSN:        fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name),
 		})
 	}
 
@@ -61,19 +61,19 @@ func dbConfig(conn DBConnection) (dbConfig gorm.Dialector) {
 }
 
 // NewDatabase 新建数据库连接
-func NewDatabase(conn DBConnection) (*gorm.DB, error) {
+func NewDatabase(dbc DBConfig) (*gorm.DB, error) {
 	// 创建数据库连接
-	db, err := gorm.Open(dbConfig(conn))
+	db, err := gorm.Open(dbConfig(dbc))
 	if err != nil {
 		return nil, err
 	}
 
 	// 设置连接池
 	sqlDb, _ := db.DB()
-	sqlDb.SetMaxIdleConns(conn.MaxIdleConns)
-	sqlDb.SetMaxOpenConns(conn.MaxOpenConns)
-	sqlDb.SetConnMaxLifetime(conn.ConnMaxLifetime)
-	sqlDb.SetConnMaxIdleTime(conn.ConnMaxIdleTime)
+	sqlDb.SetMaxIdleConns(dbc.MaxIdleConns)
+	sqlDb.SetMaxOpenConns(dbc.MaxOpenConns)
+	sqlDb.SetConnMaxLifetime(dbc.ConnMaxLifetime)
+	sqlDb.SetConnMaxIdleTime(dbc.ConnMaxIdleTime)
 
 	return db, nil
 }
