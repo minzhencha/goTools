@@ -9,27 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type DriverType int8
-
 const (
-	Mysql DriverType = iota + 0
-	Postgres
+	Mysql    string = "Mysql"
+	Postgres        = "Postgres"
+	Redis           = "Redis"
 )
-
-// DriverTypeString 驱动类型字符串
-var DriverTypeString = []string{
-	0: "Mysql",
-	1: "Postgres",
-}
-
-// String 驱动类型字符串
-func (dt DriverType) String() string {
-	return DriverTypeString[dt]
-}
 
 // DBConfig 数据库连接配置
 type DBConfig struct {
-	Driver          DriverType    `json:"driver" yaml:"driver"`                   // 数据库驱动
+	Driver          string        `json:"driver" yaml:"driver"`                   // 数据库驱动
 	Host            string        `json:"host" yaml:"host"`                       // 数据库地址
 	Port            int           `json:"port" yaml:"port"`                       // 数据库端口
 	User            string        `json:"user" yaml:"user"`                       // 数据库用户名
@@ -47,12 +35,12 @@ func dbConfig(dbc DBConfig) (dbConfig gorm.Dialector) {
 	switch dbc.Driver {
 	case Mysql:
 		dbConfig = mysql.New(mysql.Config{
-			DriverName: dbc.Driver.String(),
+			DriverName: dbc.Driver,
 			DSN:        fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name),
 		})
 	case Postgres:
 		dbConfig = postgres.New(postgres.Config{
-			DriverName: dbc.Driver.String(),
+			DriverName: dbc.Driver,
 			DSN:        fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name),
 		})
 	}
