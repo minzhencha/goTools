@@ -10,7 +10,7 @@ import (
 )
 
 type RDBConfig struct {
-	Driver          DriverType    `json:"driver" yaml:"driver"`                   // 数据库驱动类型
+	Driver          string        `json:"driver" yaml:"driver"`                   // 数据库驱动类型
 	Host            string        `json:"host" yaml:"host"`                       // Redis 服务器地址
 	Port            int           `json:"port" yaml:"port"`                       // Redis 服务器端口
 	Pass            string        `json:"pass" yaml:"pass"`                       // Redis 服务器密码
