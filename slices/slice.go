@@ -136,6 +136,10 @@ func Sub(slice1, slice2 interface{}) interface{} {
 }
 
 // Delete 从切片中删除指定的元素，并直接修改传入的切片
+/*
+	slice: 传入切片，以指针的方式传入，例: Delete(&[]int{1,2,3,4,5}, 2)
+	elem: 需要删除的元素
+*/
 func Delete(slice interface{}, elem interface{}) {
 	// 获取指针类型的值
 	sliceValue := reflect.ValueOf(slice)
