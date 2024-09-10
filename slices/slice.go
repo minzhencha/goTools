@@ -135,26 +135,38 @@ func Sub(slice1, slice2 interface{}) interface{} {
 	}
 }
 
-// Delete 删除切片中的元素
-func Delete(slice interface{}, elem interface{}) interface{} {
-	if !IsSlice(slice) {
+// Delete 从切片中删除指定的元素，并直接修改传入的切片
+func Delete(slice interface{}, elem interface{}) {
+	// 获取指针类型的值
+	sliceValue := reflect.ValueOf(slice)
+	if sliceValue.Kind() == reflect.Ptr {
+		sliceValue = sliceValue.Elem()
+	}
+	// 判断是否为切片类型
+	if !IsSlice(sliceValue.Interface()) {
 		log.Println("slice 不是切片类型！")
-		return slice
-	} else if !InSlice(elem, slice) {
+		return
+	}
+	// 判断元素是否在切片中
+	if !InSlice(elem, sliceValue.Interface()) {
 		log.Println("elem 不在切片中！")
-		return slice
+		return
 	}
 
-	sliceValue := reflect.ValueOf(slice)
 	// 创建一个新的切片来存储结果
-	newSlice := reflect.MakeSlice(sliceValue.Type(), 0, sliceValue.Len()-1)
+	newSlice := reflect.MakeSlice(sliceValue.Type(), 0, sliceValue.Len())
+
 	for i := 0; i < sliceValue.Len(); i++ {
 		if sliceValue.Index(i).Interface() != elem {
 			newSlice = reflect.Append(newSlice, sliceValue.Index(i))
 		}
 	}
 
-	return newSlice
+	if sliceValue.CanSet() {
+		sliceValue.Set(newSlice)
+	} else {
+		log.Println("切片不可修改！")
+	}
 }
 
 // Deduplicate 切片去重

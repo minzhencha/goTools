@@ -116,6 +116,17 @@ func TestSliceSub(t *testing.T) {
 	})
 }
 
+func TestSliceDelete(t *testing.T) {
+	t.Run("Test Delete true", func(t *testing.T) {
+		testSlice := []int{1, 2, 3}
+		Delete(&testSlice, 2)
+
+		if !ValuesEqual(testSlice, []int{1, 3}) {
+			t.Errorf("Delete() = %v, want %v", false, true)
+		}
+	})
+}
+
 func TestSliceDeduplicate(t *testing.T) {
 	t.Run("Test Deduplicate true", func(t *testing.T) {
 		if !ValuesEqual(Deduplicate([]int{1, 2, 3, 1, 2, 3}), []int{1, 2, 3}) {
