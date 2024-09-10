@@ -135,6 +135,24 @@ func Sub(slice1, slice2 interface{}) interface{} {
 	}
 }
 
+// Delete 删除切片中的元素
+func Delete(elem interface{}, slice interface{}) interface{} {
+	if IsSlice(slice) && InSlice(elem, slice) {
+		sliceValue := reflect.ValueOf(slice)
+		newSlice := reflect.MakeSlice(sliceValue.Type(), 0, 0)
+
+		for i := 0; i < sliceValue.Len(); i++ {
+			if sliceValue.Index(i).Interface() != elem {
+				newSlice = reflect.Append(newSlice, sliceValue.Index(i))
+			}
+		}
+		return newSlice.Interface()
+	} else {
+		log.Println("elem 不在切片 slice 中或 slice 不是切片类型！")
+		return nil
+	}
+}
+
 // Deduplicate 切片去重
 func Deduplicate(input interface{}) interface{} {
 	if IsSlice(input) {
