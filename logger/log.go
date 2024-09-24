@@ -27,7 +27,7 @@ const (
 // NewLogger 新建日志
 func NewLogger(logs *Logger) (logger *zap.SugaredLogger) {
 	// 日志输出设置
-	logs = setLogger(logs)
+	syncer := setSyncer(logs)
 
 	// 日志编码设置
 	encoderCode := zapcore.EncoderConfig{
@@ -49,16 +49,16 @@ func NewLogger(logs *Logger) (logger *zap.SugaredLogger) {
 	atom := zap.NewAtomicLevelAt(logs.Level)
 
 	// 设置日志输出
-	core := zapcore.NewCore(zapcore.NewConsoleEncoder(encoderCode), zapcore.NewMultiWriteSyncer(zapcore.AddSync(logs.Syncer), zapcore.AddSync(os.Stdout)), atom)
+	core := zapcore.NewCore(zapcore.NewConsoleEncoder(encoderCode), zapcore.NewMultiWriteSyncer(zapcore.AddSync(syncer), zapcore.AddSync(os.Stdout)), atom)
 
 	// 初始化日志
-	logger = zap.New(core, zap.AddCaller(), zap.AddCaller()).Sugar()
+	logger = zap.New(core, zap.AddCaller()).Sugar()
 
 	return logger
 }
 
 // 日志输出设置
-func setLogger(logs *Logger) *Logger {
+func setSyncer(logs *Logger) *lumberjack.Logger {
 	// 日志文件设置
 	if logs.Syncer.Filename == "" {
 		logs.Syncer.Filename = "logs/" + time.Now().Format(time.DateOnly) + ".log"
@@ -76,5 +76,5 @@ func setLogger(logs *Logger) *Logger {
 		logs.Syncer.MaxBackups = 20
 	}
 
-	return logs
+	return logs.Syncer
 }
