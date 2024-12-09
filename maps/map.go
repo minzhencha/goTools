@@ -71,7 +71,7 @@ func Merges(map1, map2 interface{}) interface{} {
 	}
 }
 
-// Sub map 相减，查找第一个 map 中不存在于第二个 map 的键值，返回一个映射
+// Sub map 相减，查找第一个 map 中不存在于第二个 map 的键值，返回一个 map
 func Sub(map1, map2 interface{}) interface{} {
 	if TypesEqual(map1, map2) {
 		map1Value := reflect.ValueOf(map1)
