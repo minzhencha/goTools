@@ -2,17 +2,20 @@ package dbs
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 )
 
 const (
-	Mysql    string = "Mysql"
-	Postgres        = "Postgres"
-	Redis           = "Redis"
+	Mysql    string = "mysql"
+	Postgres        = "postgres"
+	MSSQL           = "sqlserver"
+	Redis           = "redis"
 )
 
 // DBConfig 数据库连接配置
@@ -27,6 +30,9 @@ type DBConfig struct {
 	ConnMaxIdleTime time.Duration `json:"connMaxIdleTime" yaml:"connMaxIdleTime"` // 连接最大空闲时间
 	MaxOpenConns    int           `json:"maxOpenConns" yaml:"maxOpenConns"`       // 最大打开连接数
 	MaxIdleConns    int           `json:"maxIdleConns" yaml:"maxIdleConns"`       // 最大空闲连接数
+	SSLMode         string        `json:"sslMode" yaml:"sslMode"`                 // 启用加密（pgsql 的参数）
+	Encrypt         string        `json:"encrypt" yaml:"encrypt"`                 // 启用加密（sqlserver 的参数）
+	TrustCert       bool          `json:"trustCert" yaml:"trustCert"`             // 启用信任 sqlserver 的证书
 }
 
 // dbConfig 数据库连接配置
@@ -41,8 +47,16 @@ func dbConfig(dbc DBConfig) (dbConfig gorm.Dialector) {
 	case Postgres:
 		dbConfig = postgres.New(postgres.Config{
 			DriverName: dbc.Driver,
-			DSN:        fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name),
+			DSN:        fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=%s", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name, dbc.SSLMode),
 		})
+	case MSSQL:
+		dbConfig = sqlserver.New(sqlserver.Config{
+			DriverName: dbc.Driver,
+			DSN:        fmt.Sprintf("%s:%s@%s:%d?database=%s&encrypt=%s&trustServerCertificate=%t", dbc.User, dbc.Pass, dbc.Host, dbc.Port, dbc.Name, dbc.Encrypt, dbc.TrustCert),
+		})
+	default:
+		log.Printf("unsupported database driver: %s\n", dbc.Driver)
+		return nil
 	}
 
 	return dbConfig
